@@ -4,15 +4,15 @@ require 'fileutils'
 
 module IphotoBackup
   class CLI < Thor
-    IPHOTO_ALBUM_PATH = "~/Pictures/iPhoto Library.photolibrary/AlbumData.xml"
-    DEFAULT_OUTPUT_DIRECTORY = "~/Google Drive/Dropbox"
+    IPHOTO_ALBUM_PATH = "~/Pictures/iPhoto Library/AlbumData.xml"
+    DEFAULT_OUTPUT_DIRECTORY = "~/Desktop/GoogleDrive/pics"
     IPHOTO_EPOCH = Time.new(2001, 1, 1)
 
     desc "export [OPTIONS]", "exports iPhoto albums into target directory"
     option :filter, desc: 'filter to only include albums that match the given regex', aliases: '-e', default: '.*'
     option :output, desc: 'directory to export albums to', aliases: '-o', default: DEFAULT_OUTPUT_DIRECTORY
     option :config, desc: 'iPhoto AlbumData.xml file to process', aliases: '-c', default: IPHOTO_ALBUM_PATH
-    option :'include-date-prefix', desc: 'automatically include ISO8601 date prefix to exported events', aliases: '-d', default: false, type: :boolean
+    option :'include-date-prefix', desc: 'automatically include ISO8601 date prefix to exported events', aliases: '-d', default: true, type: :boolean
     def export
       each_album do |folder_name, album_info|
         say "\n\nProcessing Roll: #{folder_name}..."
@@ -51,7 +51,8 @@ module IphotoBackup
     end
 
     def album_name(album_info)
-      folder_name = value_for_dictionary_key('RollName', album_info).content
+      folder_name = value_for_dictionary_key('RollName', album_info).content;
+      #  + value_for_dictionary_key('RollDateAsTimerInterval', album_info).content
 
       if options[:'include-date-prefix'] && folder_name !~ /^\d{4}-\d{2}-\d{2} /
         album_date = nil
